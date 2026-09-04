@@ -1,0 +1,83 @@
+import yaml
+import argparse
+import os
+import tensorflow as tf
+from src.data import DataLoader
+from src.model import build_model
+from src.utils import LossAccPlotter
+
+def main():
+    parser = argparse.ArgumentParser(description="Train the CNN model.")
+    parser.add_argument("--config", type=str, required=True, help="Path to config.yaml")
+    args = parser.parse_args()
+
+    # Load configuration
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+
+    paths = config['paths']
+    os.makedirs(paths['models_dir'], exist_ok=True)
+    os.makedirs(paths['weights_dir'], exist_ok=True)
+    os.makedirs(paths['plots_dir'], exist_ok=True)
+    os.makedirs(paths['metrics_dir'], exist_ok=True)
+
+    # Initialize data loader and load dataset
+    loader = DataLoader(config)
+    x, y = loader.load_dataset()
+    x_train, x_test, y_train, y_test, class_labels, nb_classes = \
+        loader.split_and_transform(x, y)
+
+    # Build model
+    model = build_model(nb_classes, config)
+
+    # Training parameters from config
+    epochs = config['training']['epochs']
+    batch_size = config['training']['batch_size']
+    val_split = config['training']['validation_split']
+    optimizer_name = config['training']['optimizer']
+
+    # Setup Checkpointing
+    checkpoint_path = os.path.join(paths['models_dir'], f"trained_model_{optimizer_name}.h5")
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(
+        checkpoint_path, monitor='val_loss', save_best_only=True, verbose=1
+    )
+
+    # Plotter setup for training history
+    plotter = LossAccPlotter(
+        title=f"Training Performance - {optimizer_name}",
+        save_to_filepath=os.path.join(paths['plots_dir'], f"{optimizer_name}_loss_acc.png"),
+        show_regressions=True,
+        show_averages=True
+    )
+
+    print(f"Starting training with {optimizer_name}...")
+
+    # Training loop
+    history = model.fit(
+        x_train, y_train,
+        epochs=epochs,
+        batch_size=batch_size,
+        validation_split=val_split,
+        callbacks=[checkpoint],
+        verbose=1
+    )
+
+    # Save weights
+    weights_path = os.path.join(paths['weights_dir'], f"weight_model_{optimizer_name}.hdf5")
+    model.save_weights(weights_path)
+    print(f"Weights saved to: {weights_path}")
+
+    # Plotting training history from the history object
+    for epoch in range(len(history.history['loss'])):
+        plotter.add_values(
+            epoch,
+            loss_train=history.history['loss'][epoch],
+            loss_val=history.history['val_loss'][epoch],
+            acc_train=history.history['accuracy'][epoch],
+            acc_val=history.history['val_accuracy'][epoch]
+        )
+
+    print("Training completed successfully.")
+
+if __name__ == "__main__":
+    main

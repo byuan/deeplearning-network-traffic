@@ -1,0 +1,29 @@
+# Tiny synthetic run used by CI as a sanity check (no dataset required).
+seed: 0
+
+data:
+  source: synthetic
+  n_samples: 600
+  n_bytes: 256
+  n_classes: 4
+  test_size: 0.25
+  stratify: true
+  normalize: true
+
+model:
+  filters: 2
+  kernel_size: 5
+  pool_size: 2
+  dropout: 0.2
+  dense_sizes: [16, 8]
+
+train:
+  optimizer: Adam
+  lr: 0.001
+  epochs: 3
+  batch_size: 32
+  validation_split: 0.10
+  verbose: 0
+
+output:
+  dir: results_synthetic

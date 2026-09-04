@@ -1,0 +1,30 @@
+# Experiment configuration — edit this, not the code, to change a run.
+seed: 42
+
+data:
+  source: csv                        # "csv" (real data) or "synthetic" (smoke tests / CI only)
+  csv_path: data/cptc2017_flows.csv  # header-less; col 0 = protocol label, cols 1..1024 = payload bytes
+  n_bytes: 1024                      # first N payload bytes of each TCP flow
+  test_size: 0.30                    # 70/30 split as in the original study
+  stratify: true
+  normalize: true                    # bytes / 255 (constant rescale — no train/test leakage)
+
+model:                               # 1-D CNN from the original study
+  filters: 2
+  kernel_size: 5
+  pool_size: 2
+  dropout: 0.2
+  dense_sizes: [16, 8]
+
+train:
+  optimizer: Adam                    # SGD | Adam | RMSprop | SGD-Momentum | SGD-Nesterov
+  lr: 0.001
+  momentum: 0.9                      # used by SGD-Momentum / SGD-Nesterov only
+  epochs: 200                        # original study trained for 200 epochs
+  batch_size: 32
+  validation_split: 0.10
+  early_stopping_patience: 0         # 0 = off. 30 stops at ~epoch 94 for ≈0.01 less F1 — see report/REPRODUCTION_NOTE.md
+  verbose: 2                         # one line per epoch
+
+output:
+  dir: results
