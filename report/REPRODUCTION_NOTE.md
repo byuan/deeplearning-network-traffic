@@ -85,10 +85,28 @@ the paper, on the data that ships with it, is the one in `results/metrics.json`.
   stops at epoch 94 (best epoch 64) at 0.812 accuracy / 0.784 macro-F1 — i.e. early stopping
   halves the run time for a cost of about 0.01 in both metrics. Set that key in `config.yaml`
   if the shorter run is preferred.
-- **Variance.** `bash scripts/seed_sweep.sh` retrains with seeds 1–3 and writes
-  `results/seed_summary.json` (mean ± std of each headline metric); quote that spread alongside
-  the single-seed numbers when comparing optimizers, since the Adam/SGD-Momentum difference above
-  (0.0025 accuracy) is well inside what a seed change produces.
+- **Variance, and why the optimizer ranking is not meaningful.** `bash scripts/seed_sweep.sh`
+  retrains with seeds 42, 1, 2, 3, 4 (`results/seed_summary.json`). Over those five runs:
+
+  | metric | mean ± std | min – max |
+  |---|---|---|
+  | accuracy | 0.8153 ± 0.0149 | 0.7888 – 0.8241 |
+  | precision (macro) | 0.8078 ± 0.0192 | — |
+  | recall (macro) | 0.7829 ± 0.0195 | — |
+  | F1 (macro) | 0.7925 ± 0.0172 | 0.7625 – 0.8025 |
+  | ROC-AUC (OvR macro) | 0.9845 ± 0.0013 | 0.9823 – 0.9855 |
+  | F1 (weighted) | 0.8169 ± 0.0160 | — |
+
+  Seed 42 (the configured default) reproduces `results/metrics.json` exactly, so the sweep also
+  serves as a determinism check. **The spread across seeds (±0.015 accuracy, ±0.017 macro-F1) is
+  six times larger than the Adam-vs-SGD-Momentum difference measured in §3 (0.0025 accuracy).**
+  Any ranking of the five optimizers on a single run each — including the paper's Table II, where
+  SGD-Momentum is declared best — is therefore within noise and should not be read as evidence
+  that one optimizer beats another on this task. Distinguishing them would need several seeds per
+  optimizer and a comparison of the resulting distributions. ROC-AUC is by far the most stable
+  metric here (±0.0013) and is the one to prefer when comparing configurations.
+  One run (seed 4) lands about one and a half standard deviations low at 0.789 accuracy, which is
+  worth remembering when a single number is quoted from a single run of anything in this repo.
 
 ## 6. What would move the numbers
 

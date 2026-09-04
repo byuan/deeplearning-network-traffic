@@ -1,7 +1,7 @@
 {
   "repo": "deeplearning-network-traffic",
-  "course_level": "independent study — graded at the 520 bar (SUBMISSION.md)",
-  "graded": "2026-09-04 (re-grade after corrections; previous grade 77/100)",
+  "course_level": "independent study \u2014 graded at the 520 bar (SUBMISSION.md)",
+  "graded": "2026-09-04 (re-grade after corrections and seed sweep; previous grades 77, then 90)",
   "criteria": [
     {
       "id": "reproducibility",
@@ -11,15 +11,15 @@
     },
     {
       "id": "evaluation_validity",
-      "score": 19,
+      "score": 20,
       "max": 20,
-      "justification": "Accuracy, macro and weighted P/R/F1, macro OvR ROC-AUC and per-class scores for all 24 classes; leakage_scan=clean, confirmed by reading src/data.py (stratified seeded split, constant 1/255 scaling, label encoder fit on names only, validation slice taken from the training portion, test set touched once). Now also has a variance path: scripts/seed_sweep.sh + summarize_seeds.py produce results/seed_summary.json (mean ± std), and report/REPRODUCTION_NOTE.md §5 analyses the macro-vs-weighted gap and the TLS-cluster confusions. One point withheld because the sweep is provided but its numbers are not yet reported in the repo."
+      "justification": "Accuracy, macro and weighted P/R/F1, macro OvR ROC-AUC and per-class scores for all 24 classes; leakage_scan=clean, confirmed by reading src/data.py (stratified seeded split, constant 1/255 scaling, label encoder fit on names only, validation slice taken from the training portion, test set touched once). The variance estimate is now run and reported, not merely offered: 5 seeds give accuracy 0.8153 \u00b1 0.0149, macro-F1 0.7925 \u00b1 0.0172, ROC-AUC 0.9845 \u00b1 0.0013 (results/seed_summary.json), with seed 42 reproducing results/metrics.json exactly. REPRODUCTION_NOTE.md \u00a75 draws the correct inference from it \u2014 the seed spread is ~6x the measured optimizer difference, so the paper's optimizer ranking is within noise \u2014 which is the kind of evaluation-validity reasoning the rubric asks for."
     },
     {
       "id": "implementation",
       "score": 19,
       "max": 20,
-      "justification": "tests=pass (3 smoke tests, now deterministic: losses compared in eval mode with a fixed seed). src/model.py matches the described 1-D CNN with derived flatten size and the five optimizers; src/train.py checkpoints on best validation loss and reloads before test evaluation; --seed/--out overrides support the sweep. The 200-epoch budget is now justified empirically (REPRODUCTION_NOTE.md §5: early stopping with patience 30 halts at epoch 94 for −0.01 accuracy/F1) rather than inherited. One point withheld: residual class imbalance is still not addressed inside the pipeline."
+      "justification": "tests=pass (3 smoke tests, now deterministic: losses compared in eval mode with a fixed seed). src/model.py matches the described 1-D CNN with derived flatten size and the five optimizers; src/train.py checkpoints on best validation loss and reloads before test evaluation; --seed/--out overrides support the sweep. The 200-epoch budget is now justified empirically (REPRODUCTION_NOTE.md \u00a75: early stopping with patience 30 halts at epoch 94 for \u22120.01 accuracy/F1) rather than inherited. One point withheld: residual class imbalance is still not addressed inside the pipeline."
     },
     {
       "id": "code_quality",
@@ -31,21 +31,20 @@
       "id": "report",
       "score": 15,
       "max": 20,
-      "justification": "report_present=pass: report/ now holds the 14-page paper (abstract, introduction, results with optimizer discussion, conclusion, references) and REPRODUCTION_NOTE.md. The note reconciles the paper's Table II (weighted averages, best 0.9632 with SGD-Momentum) with results/metrics.json: it identifies averaging as part of the gap, reports that SGD-Momentum (0.817), the original raw-byte preprocessing (overfits, val-loss 0.97) and a TensorFlow/Keras port (0.814) all land in the same 0.81–0.82 band, states plainly that the 0.96 figure could not be reproduced, lists untestable hypotheses without asserting any, and declares the reproducible numbers authoritative. SUBMISSION.md is filled with claimed results copied from metrics.json. Deductions: the paper itself is unchanged, so its Table II still states numbers the repository does not reproduce — a reader must find the note; the paper lacks a labelled literature-review section; and the paper is not in IEEE two-column format."
+      "justification": "report_present=pass: report/ now holds the 14-page paper (abstract, introduction, results with optimizer discussion, conclusion, references) and REPRODUCTION_NOTE.md. The note reconciles the paper's Table II (weighted averages, best 0.9632 with SGD-Momentum) with results/metrics.json: it identifies averaging as part of the gap, reports that SGD-Momentum (0.817), the original raw-byte preprocessing (overfits, val-loss 0.97) and a TensorFlow/Keras port (0.814) all land in the same 0.81\u20130.82 band, states plainly that the 0.96 figure could not be reproduced, lists untestable hypotheses without asserting any, and declares the reproducible numbers authoritative. SUBMISSION.md is filled with claimed results copied from metrics.json. Deductions: the paper itself is unchanged, so its Table II still states numbers the repository does not reproduce \u2014 a reader must find the note; the paper lacks a labelled literature-review section; and the paper is not in IEEE two-column format."
     },
     {
       "id": "security_relevance",
       "score": 5,
       "max": 5,
-      "justification": "Unchanged: payload-based protocol identification on a self-collected CPTC-2017 capture with an original pcap→flow→byte-tensor pipeline. The new analysis of why TLS-fronted services (Amazon/SSL/Google/SSH/Cloudflare) collapse into each other, with concrete proposals (SNI, entropy features, label merging), adds genuine security insight."
+      "justification": "Unchanged: payload-based protocol identification on a self-collected CPTC-2017 capture with an original pcap\u2192flow\u2192byte-tensor pipeline. The new analysis of why TLS-fronted services (Amazon/SSL/Google/SSH/Cloudflare) collapse into each other, with concrete proposals (SNI, entropy features, label merging), adds genuine security insight."
     }
   ],
-  "total": 90,
+  "total": 91,
   "max": 100,
   "integrity_flags": [],
-  "summary": "After corrections the repository is a complete, honest submission: one-command deterministic reproduction verified three times, a leakage-free multi-metric evaluation with a variance tool, a clean committed tree, a filled manifest, and — most importantly — an explicit reconciliation note that refuses to let the paper's unreproduced 96% stand unchallenged. The remaining gap to full marks is in the report: the original PDF still carries the old numbers and is not IEEE-formatted, and the seed-sweep results have not yet been run and quoted.",
+  "summary": "After corrections the repository is a complete, honest submission: one-command deterministic reproduction confirmed four times (including by the seed sweep), a leakage-free multi-metric evaluation with a reported 5-seed variance estimate, a clean committed tree, a filled manifest, and an explicit reconciliation note that refuses to let the paper's unreproduced 96% stand unchallenged and shows the optimizer ranking to be within seed noise. The remaining gap to full marks is the original PDF itself: it still carries Table II's numbers and is not in IEEE format.",
   "required_fixes": [
-    "Run `bash scripts/seed_sweep.sh` (≈30 min CPU) and quote results/seed_summary.json (mean ± std) in SUBMISSION.md and REPRODUCTION_NOTE.md.",
     "Issue a revised paper (or an erratum page inside report/) that replaces Table II with the reproduced numbers, or clearly marks it as superseded; ideally reformat to the IEEE conference template and add a short related-work section.",
     "Physically delete the git-ignored legacy files and vendored tool sources (`rm -rf conv1d-model.py laplotter.py data_frequency.py *.pyc *.ipynb .ipynb_checkpoints backup_models backup_weights weights loss_acc_plots metrics confusion_matrix frequency_data scons nDPI pkt2flow`).",
     "Optional: address class imbalance inside the pipeline (class-weighted loss) and report whether it moves macro-F1."

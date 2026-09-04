@@ -1,6 +1,6 @@
 # Grade report — deeplearning-network-traffic (re-grade after corrections)
 
-**Total: 90 / 100** (previous grade: 77 / 100)  ·  2026-09-04  ·  per `grading/AGENT_GRADING.md` / `grading/rubric.yaml`
+**Total: 91 / 100** (previous grades: 77, then 90)  ·  2026-09-04  ·  per `grading/AGENT_GRADING.md` / `grading/rubric.yaml`
 Course level: independent study, graded at the 520 bar (declared in `SUBMISSION.md`).
 
 ## Evidence used
@@ -15,7 +15,7 @@ Course level: independent study, graded at the 520 bar (declared in `SUBMISSION.
 | Paper claims 0.9632 accuracy, repo reproduces 0.8198, nothing reconciles them | `report/REPRODUCTION_NOTE.md` reconciles: averaging explained, SGD-Momentum / raw-byte / TensorFlow variants all tested (0.81–0.82), 0.96 declared unreproduced, repo numbers declared authoritative |
 | `SUBMISSION.md` blank | Filled (team, level, problem, dataset, claimed results from `metrics.json`, AI-use) |
 | Dead code and vendored trees in the tree | Git-ignored and documented; committed repo is clean |
-| No variance estimate | `scripts/seed_sweep.sh` + `summarize_seeds.py`; `--seed/--out` overrides in `train.py` |
+| No variance estimate | Run over 5 seeds and reported: accuracy 0.8153 ± 0.0149, macro-F1 0.7925 ± 0.0172, ROC-AUC 0.9845 ± 0.0013; seed 42 reproduces the headline exactly |
 | 200-epoch budget unjustified | Tested: early stopping (patience 30) stops at epoch 94 for −0.01 accuracy/F1; documented, budget kept for comparability |
 | — (new) flaky smoke test caught by the harness | Fixed: losses compared in eval mode with a fixed seed; 5/5 consecutive passes |
 
@@ -25,9 +25,11 @@ Course level: independent study, graded at the 520 bar (declared in `SUBMISSION.
 
 `make reproduce` runs unattended in about ten minutes on a CPU and has now produced byte-identical metrics on three independent runs, the third performed by the grading harness itself. The two withheld points remain for the private dataset that a grader must be handed separately; `data/README.md` and `SUBMISSION.md` say so plainly.
 
-### Evaluation validity & metrics — 19 / 20 (+1)
+### Evaluation validity & metrics — 20 / 20 (+2)
 
-Everything from the previous grade holds (stratified seeded split, constant scaling, no leakage, macro and per-class metrics, ROC-AUC). The gaps I flagged are now addressed: `REPRODUCTION_NOTE.md` §5 explains the macro-vs-weighted F1 gap (six plaintext protocols at F1 ≥ 0.98 carry 42 % of the test set) and diagnoses the TLS cluster, and a seed sweep exists. One point withheld only because the sweep has not yet been run and its spread quoted.
+Everything from the previous grade holds (stratified seeded split, constant scaling, no leakage, macro and per-class metrics, ROC-AUC), and the last gap is closed: the sweep has been run over five seeds and its result is reported in both `SUBMISSION.md` and `REPRODUCTION_NOTE.md` §5 — accuracy 0.8153 ± 0.0149, macro-F1 0.7925 ± 0.0172, ROC-AUC 0.9845 ± 0.0013, with seed 42 reproducing `results/metrics.json` exactly.
+
+What earns the last point is not the numbers but the inference drawn from them: the seed-to-seed spread is roughly six times the Adam-vs-SGD-Momentum difference, so the note concludes that the optimizer ranking — including the paper's — is within noise and says what a real comparison would require. It also identifies ROC-AUC (±0.0013) as the stable metric for comparing configurations. That is exactly the evaluation-validity reasoning the rubric is asking for, and it is a conclusion that argues against the submission's own headline framing.
 
 ### Implementation correctness — 19 / 20 (+1)
 
@@ -49,7 +51,6 @@ The failure analysis of the TLS-fronted services, and the concrete proposals to 
 
 ## Fixes, in priority order
 
-1. Run `bash scripts/seed_sweep.sh` and quote the mean ± std from `results/seed_summary.json` in `SUBMISSION.md` and the note.
-2. Revise the paper or add an erratum page in `report/` that replaces Table II with the reproduced numbers; if time permits, move to the IEEE template and add a short related-work section.
-3. Physically delete the git-ignored legacy files and vendored tool sources.
-4. Optionally add a class-weighted loss and report whether macro-F1 moves.
+1. Revise the paper or add an erratum page in `report/` that replaces Table II with the reproduced numbers; if time permits, move to the IEEE template and add a short related-work section.
+2. Physically delete the git-ignored legacy files and vendored tool sources.
+3. Optionally add a class-weighted loss and report whether macro-F1 moves.

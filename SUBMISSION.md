@@ -1,7 +1,7 @@
 # Submission Manifest
 
 ## Team
-- Akshit Jain (RIT ID: ______) — original study: data collection at CPTC 2017, pcap → flow → 1024-byte
+- Akshit Jain (RIT ID: AVJ2668) — original study: data collection at CPTC 2017, pcap → flow → 1024-byte
   CSV pipeline (`helper-code-files/`, pkt2flow, nDPI), CNN design, optimizer comparison, paper.
 - Bo Yuan — advisor; conversion of the original Keras script to the CSEC 520/620 reproducible
   PyTorch layout (`src/`, `config.yaml`, tests, grading harness).
@@ -40,6 +40,13 @@ figures in the original paper):
 - Accuracy: 0.8198
 - Precision / Recall / F1 (macro): 0.7965 / 0.7927 / 0.7931  (weighted F1: 0.8206)
 - ROC-AUC (one-vs-rest, macro): 0.9849
+
+Variance over 5 seeds (42, 1, 2, 3, 4 — `results/seed_summary.json`, reproduce with
+`bash scripts/seed_sweep.sh`): accuracy 0.8153 ± 0.0149, macro-F1 0.7925 ± 0.0172,
+ROC-AUC 0.9845 ± 0.0013. Seed 42 reproduces the single-run numbers above exactly. The
+seed-to-seed spread exceeds the measured difference between optimizers, so the optimizer
+comparison in the original paper should be read as inconclusive — see
+`report/REPRODUCTION_NOTE.md` §5.
 
 ## AI-use acknowledgment
 The original study, dataset pipeline and paper are the student's own work (2018, no AI

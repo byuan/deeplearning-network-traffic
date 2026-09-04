@@ -34,9 +34,9 @@ make reproduce        # == .venv/bin/python -m src.train --config config.yaml
 | `model.pt` | best-validation-loss checkpoint (`state_dict`) |
 
 Other targets: `make test` (smoke tests on synthetic data), `make lint`, `make clean`.
-`bash scripts/seed_sweep.sh` retrains with seeds 1–3 and writes `results/seed_summary.json`
-(mean ± std of every headline metric) — a variance estimate to quote alongside the single-seed
-numbers above.
+`bash scripts/seed_sweep.sh` retrains with seeds 42, 1, 2, 3, 4 and writes `results/seed_summary.json`
+(mean ± std of every headline metric) — the variance estimate quoted alongside the single-seed
+numbers above; seed 42 is included, so its run must reproduce the table exactly.
 
 To run another optimizer, edit `train.optimizer` in `config.yaml`
 (`SGD`, `Adam`, `RMSprop`, `SGD-Momentum`, `SGD-Nesterov`) and rerun `make reproduce`.
